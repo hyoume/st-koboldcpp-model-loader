@@ -1,0 +1,12 @@
+{
+  "display_name": "KoboldCpp Model Loader",
+  "js": "index.js",
+  "css": "style.css",
+  "i18n": {
+    "en-en": "i18n/en.json"
+  },
+  "minimum_client_version": "1.16.0",
+  "author": "Hyoume",
+  "version": "1.0.0",
+  "homePage": "https://github.com/hyoume/st-koboldcpp-model-loader"
+}
