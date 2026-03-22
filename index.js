@@ -22,8 +22,8 @@ import {
 
 const MODULE_NAME = Object.freeze('st-koboldcpp-model-loader');
 
-const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(5);
-const MODULE_LOAD_INTERVAL = Object.freeze(10000);
+const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(20);
+const MODULE_LOAD_INTERVAL = Object.freeze(1000);
 
 const MODULE_OPTIONS_FILTER = Object.freeze(['initial_model', 'unload_model']);
 
@@ -150,8 +150,10 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
 
-  changeMainAPI();
-  setExtensionSettings({ model: 'no_connection', listOptions: [] });
+  // changeMainAPI();
+  // setExtensionSettings({ model: 'no_connection', listOptions: [] });
+
+  jQuery(`[id^='api_button_']`).trigger('click');
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
