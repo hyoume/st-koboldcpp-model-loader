@@ -229,12 +229,14 @@ function setEventHandlers() {
 
 async function contentRender() {
   const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'content', getExtensionSettings());
+  console.log({ html });
   jQuery('#st-koboldcpp-model-loader--content').html(html);
   jQuery('#st-koboldcpp-model-loader--model-configuration-form').on('submit', onSubmitHandler);
 }
 
 async function templateRender() {
   const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'template', getExtensionSettings());
+  console.log({ html });
   jQuery('#extensions_settings').append(html);
 }
 
