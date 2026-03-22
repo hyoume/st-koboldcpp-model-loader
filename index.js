@@ -23,7 +23,7 @@ import {
 const MODULE_NAME = Object.freeze('st-koboldcpp-model-loader');
 
 const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(20);
-const MODULE_LOAD_INTERVAL = Object.freeze(1000);
+const MODULE_LOAD_INTERVAL = Object.freeze(2000);
 
 const MODULE_OPTIONS_FILTER = Object.freeze(['initial_model', 'unload_model']);
 
@@ -153,6 +153,8 @@ async function onSubmitHandler(e) {
   // changeMainAPI();
   // setExtensionSettings({ model: 'no_connection', listOptions: [] });
 
+
+  await new Promise(resolve => setTimeout(resolve, MODULE_LOAD_INTERVAL));
   jQuery(`[id^='api_button_']`).trigger('click');
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
