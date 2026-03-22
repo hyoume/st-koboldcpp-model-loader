@@ -156,7 +156,7 @@ function setExtensionSettings(settings = {}) {
 }
 
 function getExtensionSettings(setting = [], defaultValue) {
-  return lodash.get(extensionSettings[MODULE_NAME], setting, defaultValue);
+  return lodash.get(extensionSettings, [MODULE_NAME].concat(setting), defaultValue);
 }
 
 async function onEnabledHandler() {
