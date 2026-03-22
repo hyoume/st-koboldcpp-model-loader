@@ -145,13 +145,13 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Select a valid model configuration`, t`KoboldCpp Model Loader`);
   }
 
-  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
-  changeMainAPI();
-
   const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration);
   if (!success) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
+
+  changeMainAPI();
+  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
