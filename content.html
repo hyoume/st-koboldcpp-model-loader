@@ -11,13 +11,13 @@
     </small>
   </div>
   <div class="flex-container st-koboldcpp-model-loader--content--container">
-    <select name="modelConfiguration" id="st-koboldcpp-model-loader--model-configuration-form--select" class="flex1" {{#unless connected}}disabled="true"{{/unless}}>
+    <select name="modelConfiguration" id="st-koboldcpp-model-loader--model-configuration-form--select" class="flex1">
       <option value="" data-i18n="- Select model configuration -">- Select model configuration -</option>
       {{#each listOptions}}
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
-    <button id="st-koboldcpp-model-loader--model-configuration-form--submit" class="menu_button interactable" type="submit" tabindex="0" role="button" data-i18n="Load" {{#unless connected}}disabled="true"{{/unless}}>
+    <button id="st-koboldcpp-model-loader--model-configuration-form--submit" class="menu_button interactable" type="submit" tabindex="0" role="button" data-i18n="Load">
       Load
     </button>
   </div>
