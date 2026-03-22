@@ -154,16 +154,20 @@ async function onSubmitHandler(e) {
   setExtensionSettings({ model: 'no_connection', listOptions: [] });
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
-    toastr.info(t`Wait for model configuration`, t`KoboldCpp Model Loader`, {
-      progressBar: true,
-      preventDuplicates: true,
-      timeOut: MODULE_LOAD_INTERVAL
-    });
     const [{ value }] = await Promise.allSettled([
       apiGetModel(koboldcppApiUrl),
-      new Promise(resolve => setTimeout(resolve, MODULE_LOAD_INTERVAL))
+      new Promise((resolve) => {
+        toastr.info(t`Wait for model configuration`, t`KoboldCpp Model Loader`, {
+          progressBar: true,
+          timeOut: MODULE_LOAD_INTERVAL,
+          onHidden: resolve
+        })
+      })
     ]);
     console.log({ value })
+    if (typeof value !== 'undefined') {
+      break;
+    }
   }
 }
 
