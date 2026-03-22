@@ -160,7 +160,7 @@ async function onSubmitHandler(e) {
       timeOut: MODULE_LOAD_INTERVAL
     });
     const [{ value }] = await Promise.allSettled([
-      apiGetModel(apiUrl),
+      apiGetModel(koboldcppApiUrl),
       new Promise(resolve => setTimeout(resolve, MODULE_LOAD_INTERVAL))
     ]);
     console.log({ value })
