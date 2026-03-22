@@ -22,7 +22,10 @@ import {
 
 const MODULE_NAME = Object.freeze('st-koboldcpp-model-loader');
 
-const FILTER_OPTIONS = Object.freeze(['initial_model', 'unload_model']);
+const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(10);
+const MODULE_LOAD_INTERVAL = Object.freeze(5000);
+
+const MODULE_OPTIONS_FILTER = Object.freeze(['initial_model', 'unload_model']);
 
 const KOBOLDCPP_API = Object.freeze({
   getListOptions: '/api/admin/list_options',
@@ -64,7 +67,7 @@ async function apiGetListOptions(apiUrl) {
       throw new Error(`HTTP status ${response.status}`);
     }
     const data = await response.json();
-    return data.filter((option) => !FILTER_OPTIONS.includes(option));
+    return data.filter((option) => !MODULE_OPTIONS_FILTER.includes(option));
   } catch (error) {
     return [];
   }
@@ -86,69 +89,6 @@ async function apiPostReloadConfig(apiUrl, filename) {
     return false;
   }
 }
-
-// async function loadModel(apiUrl, modelPath) {
-//   try {
-//     const response = await fetch(`${apiUrl}${KOBOLDCPP_API.load}`, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-      
-//     });
-//     return response.ok;
-//   } catch (error) {
-//     return false;
-//   }
-// }
-
-// async function waitForModelLoad(apiUrl, maxAttempts = 60, interval = 2000) {
-//   for (let i = 0; i < maxAttempts; i++) {
-//     try {
-//       const response = await fetch(`${apiUrl}${KOBOLDCPP_API.status}`);
-//       if (response.ok) {
-//         const data = await response.json();
-//         if (data.model_loaded || data.queue === 0) {
-//           return true;
-//         }
-//       }
-//     } catch (error) {
-//       /* empty */
-//     }
-//     await new Promise(resolve => setTimeout(resolve, interval));
-//   }
-//   return false;
-// }
-
-// async function switchModel(modelPath) {
-//   const apiUrl = extensionSettings.koboldcppApiUrl;
-
-//   toastr.info(t`Unloading current model`, t`KoboldCpp Model Loader`);
- 
-//   const unloaded = await unloadModel(apiUrl);
-//   if (!unloaded) {
-//     toastr.error(t`Error unloading current model: ${error.message}`, t`KoboldCpp Model Loader`);
-//     return false; 
-//   }
-
-//   await new Promise(resolve => setTimeout(resolve, 2000));
-
-//   toastr.info(t`Loading model: ${modelPath}`, t`KoboldCpp Model Loader`);
-
-//   const loaded = await loadModel(apiUrl, modelPath);
-//   if (!loaded) {
-//     toastr.error(t`Error loading model: ${error.message}`, t`KoboldCpp Model Loader`);
-//     return false;
-//   }
-
-//   const ready = await waitForModelLoad(apiUrl);
-
-//   if (ready) {
-//     toastr.success('Model loaded successfully', t`KoboldCpp Model Loader`);
-//     return true;
-//   } else {
-//     toastr.error(t`Can't load model`, t`KoboldCpp Model Loader`);
-//     return false;
-//   }
-// }
 
 function setExtensionSettings(settings = {}) {
   extensionSettings[MODULE_NAME] = lodash.assign({}, extensionSettings[MODULE_NAME], settings);
@@ -178,8 +118,8 @@ async function onEnabledHandler() {
 
   if (enabled && connected && updated) {
     const koboldcppApiUrl = textCompletionSettings.server_urls.koboldcpp;
-    let model = await apiGetModel(koboldcppApiUrl);
-    let listOptions = await apiGetListOptions(koboldcppApiUrl);
+    const model = await apiGetModel(koboldcppApiUrl);
+    const listOptions = await apiGetListOptions(koboldcppApiUrl);
     setExtensionSettings({ koboldcppApiUrl, model, listOptions });
   }
   setExtensionSettings({ enabled, updated, connected });
@@ -198,20 +138,35 @@ async function onSubmitHandler(e) {
     (obj, { name, value }) => lodash.assign(obj, { [name]: value })
   , {});
 
+  const koboldcppApiUrl = getExtensionSettings('koboldcppApiUrl');
   const listOptions = getExtensionSettings('listOptions');
+
   if (!listOptions.includes(modelConfiguration)) {
     return toastr.error(t`Select a valid model configuration`, t`KoboldCpp Model Loader`);
   }
 
-  const koboldcppApiUrl = getExtensionSettings('koboldcppApiUrl');
   const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration);
   if (!success) {
-    return toastr.error(t`Load model configuration failed`, t`KoboldCpp Model Loader`);
+    return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
 
-  jQuery('#api_button_textgenerationwebui').trigger('click');
-  // changeMainAPI();
-  // setExtensionSettings({ model: 'no_connection', listOptions: [] });
+  changeMainAPI();
+  setExtensionSettings({ model: 'no_connection', listOptions: [] });
+
+  for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
+    toastr.info(t`Wait for model configuration`, t`KoboldCpp Model Loader`, {
+      progressBar: true,
+      preventDuplicates: true,
+      timeOut: MODULE_LOAD_INTERVAL
+    });
+    const [{ value }] = await Promise.allSettled([
+      apiGetModel(apiUrl),
+      new Promise(resolve => setTimeout(resolve, MODULE_LOAD_INTERVAL))
+    ]);
+    if (typeof value !== 'undefined') {
+      break;
+    }
+  }
 }
 
 function setEventHandlers() {
