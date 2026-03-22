@@ -176,12 +176,13 @@ async function onEnabledHandler() {
     || connected !== currentConnected
   );
 
-  console.log(JSON.stringify({ enabled, connected, updated }, null, 2));
+  console.log('>>>>>>>>>>', JSON.stringify({ enabled, connected, updated }, null, 2));
 
   if (enabled && connected && updated) {
     const koboldcppApiUrl = textCompletionSettings.server_urls.koboldcpp;
     let model = await apiGetModel(koboldcppApiUrl);
     let listOptions = await apiGetListOptions(koboldcppApiUrl);
+    console.log('>>>>>>>>>>', JSON.stringify({ koboldcppApiUrl, model, listOptions }, null, 2));
     setExtensionSettings({ koboldcppApiUrl, model, listOptions });
   }
   setExtensionSettings({ enabled, updated, connected });
