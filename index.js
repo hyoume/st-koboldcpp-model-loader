@@ -22,11 +22,12 @@ import {
 
 const MODULE_NAME = Object.freeze('st-koboldcpp-model-loader');
 
-const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(20);
-const MODULE_LOAD_INTERVAL = Object.freeze(2000);
+const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(10);
+const MODULE_LOAD_INTERVAL = Object.freeze(5000);
 
 const MODULE_OPTIONS_FILTER = Object.freeze(['initial_model', 'unload_model']);
 
+const KOBOLDCPP_API_INTERVAL = Object.freeze(2000);
 const KOBOLDCPP_API = Object.freeze({
   getListOptions: '/api/admin/list_options',
   postReloadConfig: '/api/admin/reload_config',
@@ -42,12 +43,15 @@ const DEFAULT_SETTINGS = Object.freeze({
   model: undefined
 });
 
-async function apiGetModel(apiUrl) {
+async function apiGetModel(apiUrl, timeout = 0) {
   try {
-    const response = await fetch(`${apiUrl}${KOBOLDCPP_API.getModel}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const [response] = await Promise.all([
+      fetch(`${apiUrl}${KOBOLDCPP_API.getModel}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      new Promise((resolve) => setTimeout(resolve, timeout))
+    ]);
     if (!response.ok) {
       throw new Error(`HTTP status ${response.status}`);
     }
@@ -57,12 +61,15 @@ async function apiGetModel(apiUrl) {
     return undefined;
   }
 }
-async function apiGetListOptions(apiUrl) {
+async function apiGetListOptions(apiUrl, timeout = 0) {
   try {
-    const response = await fetch(`${apiUrl}${KOBOLDCPP_API.getListOptions}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const [response] = await Promise.all([
+      fetch(`${apiUrl}${KOBOLDCPP_API.getListOptions}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }),
+      new Promise((resolve) => setTimeout(resolve, timeout))
+    ]);
     if (!response.ok) {
       throw new Error(`HTTP status ${response.status}`);
     }
@@ -73,13 +80,16 @@ async function apiGetListOptions(apiUrl) {
   }
 }
 
-async function apiPostReloadConfig(apiUrl, filename) {
+async function apiPostReloadConfig(apiUrl, filename, timeout = 0) {
   try {
-    const response = await fetch(`${apiUrl}${KOBOLDCPP_API.postReloadConfig}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename })
-    });
+    const [response] = await Promise.all([
+      fetch(`${apiUrl}${KOBOLDCPP_API.postReloadConfig}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename })
+      }),
+      new Promise((resolve) => setTimeout(resolve, timeout))
+    ]);
     if (!response.ok) {
       throw new Error(`HTTP status ${response.status}`);
     }
@@ -145,13 +155,13 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Select a valid model configuration`, t`KoboldCpp Model Loader`);
   }
 
-  const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration);
+  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
+  changeMainAPI();
+
+  const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration, KOBOLDCPP_API_INTERVAL);
   if (!success) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
-
-  changeMainAPI();
-  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
@@ -166,7 +176,7 @@ async function onSubmitHandler(e) {
       })
     ]);
     if (typeof value !== 'undefined') {
-      return toastr.success(t`Model configuration suceed`, t`KoboldCpp Model Loader`);
+      return toastr.success(t`Model configuration succeeded`, t`KoboldCpp Model Loader`);
     }
   }
 
