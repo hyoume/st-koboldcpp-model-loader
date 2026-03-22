@@ -2,7 +2,7 @@ import {
   lodash
 } from '../../../../lib.js';
 import {
-  saveSettingsDebounced,
+  saveSettings,
   eventSource,
   changeMainAPI,
   event_types as eventTypes,
@@ -102,7 +102,7 @@ async function apiPostReloadConfig(apiUrl, filename, timeout = 0) {
 
 function setExtensionSettings(settings = {}) {
   extensionSettings[MODULE_NAME] = lodash.assign({}, extensionSettings[MODULE_NAME], settings);
-  saveSettingsDebounced();
+  saveSettings();
 }
 
 function getExtensionSettings(setting = [], defaultValue) {
@@ -155,13 +155,14 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Select a valid model configuration`, t`KoboldCpp Model Loader`);
   }
 
+  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
+
   const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration, KOBOLDCPP_API_INTERVAL);
   if (!success) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
 
   changeMainAPI();
-  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
