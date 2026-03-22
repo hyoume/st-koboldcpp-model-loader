@@ -159,6 +159,7 @@ async function onSubmitHandler(e) {
       new Promise((resolve) => {
         toastr.info(t`Wait for model configuration`, t`KoboldCpp Model Loader`, {
           progressBar: true,
+          closeButton: false,
           timeOut: MODULE_LOAD_INTERVAL,
           onHidden: resolve
         })
