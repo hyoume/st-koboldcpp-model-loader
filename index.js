@@ -22,8 +22,8 @@ import {
 
 const MODULE_NAME = Object.freeze('st-koboldcpp-model-loader');
 
-const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(10);
-const MODULE_LOAD_INTERVAL = Object.freeze(3000);
+const MODULE_LOAD_MAX_ATTEMPS = Object.freeze(5);
+const MODULE_LOAD_INTERVAL = Object.freeze(10000);
 
 const MODULE_OPTIONS_FILTER = Object.freeze(['initial_model', 'unload_model']);
 
@@ -167,7 +167,8 @@ async function onSubmitHandler(e) {
     ]);
     console.log({ value })
     if (typeof value !== 'undefined') {
-      break;
+      console.log(`typeof value !== 'undefined'`);
+      return;
     }
   }
 }
