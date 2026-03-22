@@ -145,17 +145,13 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Select a valid model configuration`, t`KoboldCpp Model Loader`);
   }
 
+  setExtensionSettings({ model: 'no_connection', listOptions: [], connected: false });
+  changeMainAPI();
+
   const success = await apiPostReloadConfig(koboldcppApiUrl, modelConfiguration);
   if (!success) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
-
-  // changeMainAPI();
-  // setExtensionSettings({ model: 'no_connection', listOptions: [] });
-
-
-  await new Promise(resolve => setTimeout(resolve, MODULE_LOAD_INTERVAL));
-  jQuery(`[id^='api_button_']`).trigger('click');
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
@@ -169,12 +165,12 @@ async function onSubmitHandler(e) {
         })
       })
     ]);
-    console.log({ value })
     if (typeof value !== 'undefined') {
-      console.log(`typeof value !== 'undefined'`);
-      return;
+      return toastr.success(t`Model configuration suceed`, t`KoboldCpp Model Loader`);
     }
   }
+
+  return toastr.warn(t`Timeout for model configuration has expired`, t`KoboldCpp Model Loader`);
 }
 
 function setEventHandlers() {
