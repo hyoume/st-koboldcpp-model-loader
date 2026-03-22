@@ -162,7 +162,7 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Model configuration failed`, t`KoboldCpp Model Loader`);
   }
 
-  changeMainAPI();
+  jQuery('#api_button_textgenerationwebui').trigger('click');
 
   for (let i = 0; i < MODULE_LOAD_MAX_ATTEMPS; i++) {
     const [{ value }] = await Promise.allSettled([
@@ -177,6 +177,7 @@ async function onSubmitHandler(e) {
       })
     ]);
     if (typeof value !== 'undefined') {
+      jQuery('#api_button_textgenerationwebui').trigger('click');
       return toastr.success(t`Model configuration succeeded`, t`KoboldCpp Model Loader`);
     }
   }
