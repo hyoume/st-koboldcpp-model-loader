@@ -156,7 +156,7 @@ function setExtensionSettings(settings = {}) {
 }
 
 function getExtensionSettings(setting = [], defaultValue) {
-  return lodash.get(extensionSettings, [MODULE_NAME].concat(setting), defaultValue);
+  return lodash.get(extensionSettings, lodash.concat([MODULE_NAME], setting), defaultValue);
 }
 
 async function onEnabledHandler() {
@@ -176,13 +176,10 @@ async function onEnabledHandler() {
     || connected !== currentConnected
   );
 
-  console.log('>>>>>>>>>>', JSON.stringify({ enabled, connected, updated }, null, 2));
-
   if (enabled && connected && updated) {
     const koboldcppApiUrl = textCompletionSettings.server_urls.koboldcpp;
     let model = await apiGetModel(koboldcppApiUrl);
     let listOptions = await apiGetListOptions(koboldcppApiUrl);
-    console.log('>>>>>>>>>>', JSON.stringify({ koboldcppApiUrl, model, listOptions }, null, 2));
     setExtensionSettings({ koboldcppApiUrl, model, listOptions });
   }
   setExtensionSettings({ enabled, updated, connected });
@@ -229,16 +226,14 @@ function setEventHandlers() {
 
 async function contentRender() {
   const settings = getExtensionSettings();
-  const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'content', settings);
-  console.log({ settings, html });
+  const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'content', settings)
   jQuery('#st-koboldcpp-model-loader--content').html(html);
   jQuery('#st-koboldcpp-model-loader--model-configuration-form').on('submit', onSubmitHandler);
 }
 
 async function templateRender() {
   const settings = getExtensionSettings();
-  const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'template', settings);
-  console.log({ settings, html });
+  const html = await renderExtensionTemplateAsync(`third-party/${MODULE_NAME}`, 'template', settings)
   jQuery('#extensions_settings').append(html);
 }
 
