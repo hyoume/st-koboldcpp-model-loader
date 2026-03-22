@@ -176,6 +176,8 @@ async function onEnabledHandler() {
     || connected !== currentConnected
   );
 
+  console.log({ enabled, connected, updated});
+
   if (enabled && connected && updated) {
     const koboldcppApiUrl = textCompletionSettings.server_urls.koboldcpp;
     let model = await apiGetModel(koboldcppApiUrl);
