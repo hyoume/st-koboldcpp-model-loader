@@ -209,7 +209,9 @@ async function onSubmitHandler(e) {
     return toastr.error(t`Load model configuration failed`, t`KoboldCpp Model Loader`);
   }
 
-  changeMainAPI('textgenerationwebui');
+  jQuery('#api_button_textgenerationwebui').trigger('click');
+  // changeMainAPI();
+  // setExtensionSettings({ model: 'no_connection', listOptions: [] });
 }
 
 function setEventHandlers() {
