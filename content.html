@@ -1,3 +1,4 @@
+{{#if enabled}}
 <form id="st-koboldcpp-model-loader--model-configuration-form" action="javascript:void(null);" >
   <div class="flex-container st-koboldcpp-model-loader--content--container">
     <label for="E-model-configuration-field" data-i18n="Model Configuration">Model Configuration</label>
@@ -11,14 +12,19 @@
     </small>
   </div>
   <div class="flex-container st-koboldcpp-model-loader--content--container">
-    <select name="modelConfiguration" id="st-koboldcpp-model-loader--model-configuration-form--select" class="flex1">
+    <select name="modelConfiguration" id="st-koboldcpp-model-loader--model-configuration-form--select" class="flex1" {{#unless connected}}disabled="true"{{/unless}}>
       <option value="" data-i18n="- Select model configuration -">- Select model configuration -</option>
       {{#each listOptions}}
       <option value="{{this}}">{{this}}</option>
       {{/each}}
     </select>
-    <button id="st-koboldcpp-model-loader--model-configuration-form--submit" class="menu_button interactable" type="submit" tabindex="0" role="button" data-i18n="Load">
+    <button id="st-koboldcpp-model-loader--model-configuration-form--submit" class="menu_button interactable" type="submit" tabindex="0" role="button" data-i18n="Load" {{#unless connected}}disabled="true"{{/unless}}>
       Load
     </button>
   </div>
 </form>
+{{else}}
+<div class="flex-container st-koboldcpp-model-loader--content--container">
+  <span data-i18n="The extension is disabled">The extension is disabled</span>
+</div>
+{{/if}}
